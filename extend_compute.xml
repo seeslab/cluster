@@ -1,0 +1,108 @@
+<?xml version="1.0" standalone="no"?>
+
+<kickstart>
+
+<description>
+
+        A skeleton XML node file. This file is a template and is intended
+        as an example of how to customize your Rocks cluster. Kickstart XML
+        nodes such as this describe packages and "post installation" shell
+        scripts for your cluster.
+
+        XML files in the site-nodes/ directory should be named either
+        "extend-[name].xml" or "replace-[name].xml", where [name] is
+        the name of an existing xml node.
+
+        If your node is prefixed with replace, its instructions will be used
+        instead of the official node's. If it is named extend, its directives
+        will be concatenated to the end of the official node.
+
+</description>
+
+
+<changelog>
+</changelog>
+
+<main>
+        <!-- kickstart 'main' commands go here -->
+</main>
+
+<pre>
+        <!-- partitioning commands go here -->
+</pre>
+
+
+<!-- There may be as many packages as needed here. Just make sure you only
+     uncomment as many package lines as you need. Any empty <package></package>
+     tags are going to confuse rocks and kill the installation procedure
+-->
+<package>gsl.x86_64</package>
+<package>gsl-devel.x86_64</package>
+<package>blas.x86_64</package>
+<package>blas-devel.x86_64</package>
+<package>lapack.x86_64</package>
+<package>lapack-devel.x86_64</package>
+<package>vim-common.x86_64</package>
+<package>vim-enhanced.x86_64</package>
+<package>tftp.x86_64</package>
+<package>readline-devel.x86_64</package>
+<package>proj-devel.x86_64</package>
+<package>proj-nad.x86_64</package>
+<package>zlib-devel.x86_64</package>
+<package>gcc-c++.x86_64</package>
+<package>cairo-devel.x86_64</package>
+<package>libxml2-devel.x86_64</package>
+<package>mysql-server.x86_64</package>
+<package>mysql-devel.x86_64</package>
+<package>libxml2-devel</package>
+<package>libxslt</package>
+<package>libxslt-devel</package>
+<package>boost-devel</package>
+<package>python-pip</package>
+
+<post>
+    yum install --enablerepo=epel,base,updates,extras,centosplus,contrib R gdal gdal-devel openbabel pypy python-openbabel proj-devel proj-epsg python-pip boost-devel libxslt libxslt-devel libxml2-devel mysql-devel mysql-server libxml2 cairo-devel gcc-c++ zlib-devel proj-nad proj-devel readline-devel tftp vim-enhanced vim-common lapack-devel lapack blas-devel blas gsl-devel gsl cmake
+
+    mkdir /export/
+    ln -s /home/ /export/home
+
+cat&lt;&lt;EOF&gt;Rtmp
+#!/usr/bin/Rscript
+cat("Setting UK repository\n")
+r = getOption("repos") # hard code the UK repo for CRAN
+r["CRAN"] = "http://cran.uk.r-project.org"
+options(repos = r)
+rm(r)
+install.packages("ggplot2")
+install.packages("gpclib")
+install.packages("maptools")
+install.packages("randomForest")
+install.packages("rgdal")
+EOF
+
+    /usr/bin/Rscript Rtmp
+
+    ln -s /opt/python/bin/python2.7 /opt/python/bin/python
+
+   cd /tmp
+
+   /usr/bin/wget --no-check-certificate https://raw.github.com/argaen/utils/master/seeslab/cluster_scripts/post_post_install.sh /tmp/post_post_log
+
+   chmod +x /tmp/post_post_install.sh /tmp/post_post_log
+   LD_LIBRARY_PATH=/opt/python/lib /tmp/post_post_install.sh
+
+   <eval shell="python">
+
+                <!-- This is python code that will be executed on the
+                frontend node during kickstart file generation. You may contact
+                the database, make network queries, etc.  These sections are
+                generally used to help build more complex configuration
+                files.  The 'shell' attribute is optional and may point to any
+                language interpreter such as "bash", "perl", "ruby", etc.
+                By default shell="bash".  -->
+
+        </eval>
+
+</post>
+
+</kickstart>
